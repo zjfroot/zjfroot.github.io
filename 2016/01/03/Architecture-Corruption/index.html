@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Architecture Corruption - JJZ&#39;s notes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Wondering why your project takes longer and longer time to compile and build? Wondering why fewer and fewer people knows about how the whole system works? Wondering why many responsible developers giv">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Architecture Corruption">
+<meta property="og:url" content="http://yoursite.com/2016/01/03/Architecture-Corruption/index.html">
+<meta property="og:site_name" content="JJZ&#39;s notes">
+<meta property="og:description" content="Wondering why your project takes longer and longer time to compile and build? Wondering why fewer and fewer people knows about how the whole system works? Wondering why many responsible developers giv">
+<meta property="og:updated_time" content="2017-06-28T13:32:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Architecture Corruption">
+<meta name="twitter:description" content="Wondering why your project takes longer and longer time to compile and build? Wondering why fewer and fewer people knows about how the whole system works? Wondering why many responsible developers giv">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-71942330-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo logo-text" href="/">4660</a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-Architecture-Corruption" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Architecture Corruption
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/01/03/Architecture-Corruption/" class="article-date">
+  <time datetime="2016-01-03T12:30:02.000Z" itemprop="datePublished">2016-01-03</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Wondering why your project takes longer and longer time to compile and build? Wondering why fewer and fewer people knows about how the whole system works? Wondering why many responsible developers giving up refactoring messy code in the system and accepting it as “it works, do not change”? Ever wondering why and how technical debts accumulates under your nose all the time?</p>
+<p>More specifically, why on earth we have to to open 79 projects in Visual Studio or Xcode to compile an application? How many times does this ring a bell to us and we had to accept it as “this is how it works”? How many hours and money we have already wasted by compiling projects that have not been changed in last 3 months, or even worse, have not been touched in last 2 years, multiple times a day, both locally and on CI?</p>
+<h3 id="To-understand-and-explain-these-problems-we-have-to-start-from-the-very-beginning-of-any-project"><a href="#To-understand-and-explain-these-problems-we-have-to-start-from-the-very-beginning-of-any-project" class="headerlink" title="To understand and explain these problems, we have to start from the very beginning of any project."></a>To understand and explain these problems, we have to start from the very beginning of any project.</h3><a id="more"></a>
+<h4 id="Phase-1-everyone-is-happy-more-or-less"><a href="#Phase-1-everyone-is-happy-more-or-less" class="headerlink" title="Phase 1, everyone is happy (more or less)."></a>Phase 1, everyone is happy (more or less).</h4><p>This is the beginning, like the big bang of the universe. Things are simple. There are no supper massive black holes or huge giant stars and you product has a small but promising feature set.<br>Luckily you have the best developers on earth, not only the product was developed quickly but also the code base and the dev process is taken care of by your talented and responsible developers:</p>
+<ul>
+<li>Project is well designed and decoupled to a few modules </li>
+<li>Components are having clear separation of concerns</li>
+<li>Clear and unified API between components</li>
+<li>Tests are there</li>
+<li>Continuous Integration and maybe Continuous Delivery to some degree.</li>
+</ul>
+<p>IDE opens the project lightening fast. Local builds from command line finishes on you half way to the coffee machine and CI builds complete before you find the first interesting link on hacker news.</p>
+<p>There is no reason for not being happy, so it is extremely fun working on this project and the productivity is like Chuck Norris on steroids.</p>
+<h4 id="Phase-2-so-long-the-good-golden-days"><a href="#Phase-2-so-long-the-good-golden-days" class="headerlink" title="Phase 2. so long, the good golden days"></a>Phase 2. so long, the good golden days</h4><p>You product is a great hit! Customer base is exploding.<br>To keep customer happy and paying, more feature sets need to be added.<br>You need to expand the team, recruiting the best developers you can find in the country.<br>New joiners with the help of existing senior, talented, responsible developers, quickly learned how the existing project works as it is well designed and simple and new joiners are also talented.<br>Code base starts to explode as well like customer base, attributing to more developers finishing features like Chuck Norris on steroids.<br>While you are hosting a meetup showing off the cool design you use in the product and explaining how awesome it is working in this company, tempting more talented and cool developers to join your company, somethings are quietly happening to your project:</p>
+<ul>
+<li>With so many features, to avoid code duplication and reuse, more and more common functionalities are extracted to modules</li>
+<li>A few components start to have overlapping responsibility</li>
+<li>Some APIs start to look different than others</li>
+<li>A few components starts to become tightly coupled and even worse, circular depending on each other. </li>
+<li>Less tests were written and many new functionality has zero coverage</li>
+<li>Builds are slower that before, they usually take a cup of coffee to finish.</li>
+<li>Developers don’t like this, but to satisfy the growing customers and to nuke the shameless copy cats that are stealing customers, they had to trade off.</li>
+</ul>
+<p>One of the trade off people hates are longer and longer build time. Responsible developers don’t want to playing sword while compiling and task switching kills productivity.</p>
+<p>Luckily, the team noticed some technical debts are quietly accumulating, and while producing new features, they start to add more tests, refactor bad smell code, refactor build scripts and tweak build locally and on CI. Well, these debt removing is just not as fast as developing features like Chuck Norris on steroids and not as interesting as feature developing either.</p>
+<p>Anyway, with efforts, the increasing build time seems to be controlled and the build time is stable at no more than a cup of coffee. Some bad code is refactored and it is a little bit clearer when looking at the code base. You are not super happy, but still satisfied. After a few months, some developers start to miss the old Chuck Norris on steroids days, since now the productivity is just like Chuck Norris, or like Chuck Norris without martial arts and weapon.</p>
+<h4 id="Phase-3-The-return-of-the-Tar-Pit"><a href="#Phase-3-The-return-of-the-Tar-Pit" class="headerlink" title="Phase 3. The return of the Tar Pit"></a>Phase 3. The return of the Tar Pit</h4><p>The original product is still a great a success and with the huge customer base, you discovered that another product(s) can keep them paying and not getting bored, and attracting new customers<br>Not only expanding the original product team, the company creates several new teams for the new products.<br>You are recruiting as many talented and responsible developers on earth as you can find.<br>Common modules in the original product are extracted to be a separated internal foundation project, so that new products can use it directly.<br>To jumpstart the new teams, many senior developers in the original team are moved the new teams to teach and lead the new joiners.<br>Senior developers left in the original team are spitted further more, some of them are moved to new extracted “Foundation” project.<br>A few senior developers missed the old Churk Norris on steroids days so much that they moved their feet to another company.<br>There are not so many senior developers left on any of the teams, due to the split up and quitting.<br>The Foundation project is not provided as compiled binaries, but source code instead. The motivation is to ease and encourage contribution from product teams.<br>The reality is, except the original product team, most of the new product teams make contributions rarely.<br>All products want to provide new features that need new support from Foundation project, hence more modules are added in the foundation by the foundation team or as contributions.<br>With the explodes of products and features, the foundation project grows rapidly and people starts to think splitting the foundation project even further.<br>Now to open a product source code within a IDE, you have to open 79 modules/projects, including 60 projects from the Foundation project.<br>A coffee break is far from enough to finish a local build and you need five of them. CI build won’t finish even after reading 5 interesting articles on hacker news including all comments.<br>Everyone is not happy and recruiters has to explain to new joiners the rumours of not having test environments and unit tests.<br>APIs in the foundation project are a mess now, since the speed of refactoring and teaching new joiners is much slower than bad code creation.<br>Modules in the Foundation project have complex dependency and many of them are circular.<br>To address these issue tremendous efforts have been done:</p>
+<ul>
+<li>Form a CI team to focus on the CI infrastructure.</li>
+<li>CI team bought a lot of most beefy servers for CI</li>
+<li>CI team implements distribute builds.</li>
+<li>Code reviews are implemented</li>
+<li>Upgrade developers computer to latest models as often as possible</li>
+</ul>
+<p>But most of the time, developers had to trade off the clean code with features requests.  After a few month, the situation is like a Tar Pit. A few more developers both senior or new decides to seek happiness and legendary Chuck Morris somewhere else. Not so many developers are left knowing the whole picture and can explain everything in the 79 projects in the IDE.</p>
+<p>Many existing developers more than once want to reduce the technical debt but decided and being suggested not to do so, because tightly coupled modules and complex dependencies and unpredictable result.</p>
+<p>It takes a new joiner longer and longer time to understand the complex architecture and how everything works together. </p>
+<p>And the productivity? Teams still release products like ninja turtles, but without ninja. </p>
+<p>Some important features are postponed and even cancelled because the risk and cost of implementing them do not justify the business case, which due to high technical debts.</p>
+<h2 id="What-went-wrong"><a href="#What-went-wrong" class="headerlink" title="What went wrong?"></a>What went wrong?</h2><p>People like simplicity. But it is extremely hard for teams to keep simple after the project grows rapidly for two years.</p>
+<p>Producing software is not like labor intensive industry: the more people added the more produced output. As it has been pointed out 40 years ago by the book “Mythical Man-Month”, the more people/teams added, it produces not only more features but also chaos. In the sort team, these chaos can be solved and digested in many forms by teams, but in the long term, as old developers leave and new joiners join, with the natural forgetting process, feature combinational explosion, the code base will inevitably out of control and as long as the projects are not finished, the architecture gets more and more corrupted day by day.</p>
+<h2 id="Any-way-to-avoid-this"><a href="#Any-way-to-avoid-this" class="headerlink" title="Any way to avoid this?"></a>Any way to avoid this?</h2><p>It seems like there is no silver bullet. But for the example above, there are definitely ways to ease the situation.</p>
+<p>The root cause of most issues in Phase 2 and 3, is that <strong>the code base gets bigger and bigger</strong>, which is natural for a rapidly growing product or product families. It is easier to ignore issues in a large code base than in a smaller code base.</p>
+<p>So to avoid the Tar Pit, the key is to <strong>control the size of the project to a certain range</strong>.</p>
+<p>It is not the easiest thing on earth. There will always be pressures for delivering new features and new products. But there are still ways to limit the code base:</p>
+<h3 id="First-way-focusing-on-the-relevant-code-base"><a href="#First-way-focusing-on-the-relevant-code-base" class="headerlink" title="First way: focusing on the relevant code base"></a>First way: focusing on the relevant code base</h3><ul>
+<li>Refactor modules to binary isolated projects. It means that components that has fewer modifications in last few month gets extracted to a totally separated project. </li>
+<li>Provide binary release instead of source for the binary isolated projects</li>
+<li>The final product depends on the binary formats of the infrequent changed modules.</li>
+</ul>
+<p>The first immediate benefit from this approach is much shorter build time. Now you only need to compile the relevant code of your product and link other projects in binary format.</p>
+<h3 id="Second-way-Isolated-process-or-so-called-micro-services"><a href="#Second-way-Isolated-process-or-so-called-micro-services" class="headerlink" title="Second way: Isolated process or so called micro services"></a>Second way: Isolated process or so called micro services</h3><ul>
+<li>Separate different functionalities to isolated processes in product.</li>
+</ul>
+<p>It might be hard to understand for the isolated process concept, but here is an example:<br>The traditional way of implementing a music player is to provide it as a monolithic desktop application. Imagine an extremely successful music or video streaming company, it will face same challenge explained in this article.</p>
+<p>So instead of growing the monolithic desktop application, the app is redesigned to a wrapper that showing independent micro functionalities in different windows, mostly web based and html5 enabled.</p>
+<p>By this way, they limit the size of the code base of each micro service/functionality and by doing this, it is forced to always have clear separation of concern between services and it will be extremely hard to introduce highly coupled modules.</p>
+<h2 id="Bad-for-encouraging-contribution"><a href="#Bad-for-encouraging-contribution" class="headerlink" title="Bad for encouraging contribution?"></a>Bad for encouraging contribution?</h2><p>The first way, distributing un-relevant code as binary libs, when doing a contribution, it is not as easy as having the project you are going to contribute to in those 79 projects in your IDE at the same time. But it doesn’t make contribution impossible. Think about the Java Eco system with binary dependency management tools like Ivy, Maven, Gradle, it never stops people contributing internally inside a company or outside to open source libraries like Spring, JUnit, Jetty, etc. By using binary management systems, it never discouraged people from contributing to libraries.</p>
+<p>So that question here is, how do you see the easiness of doing a contribution versus the benefits of keeping the relative code base small and avoiding the Tar Pit sooner or later you will face? Which way gains more for the teams and company?</p>
+<h2 id="Micro-services-for-native-applications"><a href="#Micro-services-for-native-applications" class="headerlink" title="Micro services for native applications"></a>Micro services for native applications</h2><p>And the second way, since it separates functionalities to micro services running as isolated processes on servers, it will be very hard for native applications like games. But still it is a very interesting and genius way to attack the problem.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/06/29/Summary-of-DevOpsDays-Stockholm-2017/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Summary of DevOpsDays Stockholm 2017
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/01/03/SSD-upgrade-for-iMac-G4-Globe/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">SSD upgrade for iMac G4 Globe&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Jeff J. Zhang&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>
